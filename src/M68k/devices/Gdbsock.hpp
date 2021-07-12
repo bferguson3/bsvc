@@ -31,6 +31,7 @@ public:
 
   // Puts a byte into the device.
   virtual void Poke(Address addr, Byte c);
+  virtual void FPoke(Address addr, Byte c);
 
   // Resets the device.
   virtual void Reset();

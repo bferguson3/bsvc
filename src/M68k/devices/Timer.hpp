@@ -50,6 +50,7 @@ public:
 
   // Puts a byte into the device.
   void Poke(Address address, Byte c) override;
+  void FPoke(Address address, Byte c) override;
 
   // Resets the device.
   void Reset() override;

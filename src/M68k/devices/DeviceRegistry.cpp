@@ -4,6 +4,7 @@
 #include "M68k/devices/Gdbsock.hpp"
 #include "M68k/devices/M68681.hpp"
 #include "M68k/devices/RAM.hpp"
+#include "M68k/devices/ROM.hpp"
 #include "M68k/devices/Timer.hpp"
 
 // Array of device information (name, description, tcl script).
@@ -11,6 +12,10 @@ const DeviceInformation DeviceRegistry::ourDeviceInfo[] = {
     {
      "RAM", "Random Access Memory",
 #include "M68k/devices/RAM.scr"
+    },
+    {
+     "ROM", "Read Only Memory",
+#include "M68k/devices/ROM.scr"
     },
     {
      "GdbSocket", "Socket for connecting gdb",
@@ -35,6 +40,8 @@ bool DeviceRegistry::Create(const std::string &name, const std::string &args,
   device = nullptr;
   if (name == "RAM")
     device = new RAM(args, cpu);
+  else if (name == "ROM")
+    device = new ROM(args, cpu);
   else if (name == "GdbSocket")
     device = new GdbSocket(args, cpu);
   else if (name == "M68681")

@@ -201,6 +201,19 @@ void GdbSocket::Poke(Address addr, Byte c) {
   }
 }
 
+void GdbSocket::FPoke(Address addr, Byte c) {
+  addr -= m_base_address;
+
+  if (addr == 1) {
+    // command byte. Not needed currently.
+  } else if (addr == 3) {
+    // send byte
+    if (m_send_length < BUFFER_LENGTH) {
+      m_send_buffer[m_send_length++] = c;
+    }
+  }
+}
+
 void GdbSocket::EventCallback(int type, void *pointer) {
   if (m_status) {
     // try to write or read from the socket

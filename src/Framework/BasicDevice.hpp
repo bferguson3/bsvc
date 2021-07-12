@@ -38,12 +38,14 @@ public:
 
   // Puts a byte into the device.
   virtual void Poke(Address address, Byte c) = 0;
+  virtual void FPoke(Address address, Byte c) = 0;
 
   // Gets data from the device.
   virtual bool Peek(Address address, unsigned long &data, int size);
 
   // Puts data into the device.
   virtual bool Poke(Address address, unsigned long data, int size);
+  virtual bool FPoke(Address address, unsigned long data, int size);
 
   // Resets the device.
   virtual void Reset();

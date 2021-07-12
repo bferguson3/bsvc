@@ -42,21 +42,21 @@ std::string Loader::LoadMotorolaSRecord(std::ifstream &file, int addressSpace) {
       address = StringToInt(Cut(4, line));
       for (int k = 0; k < length - 3; ++k) {
         byte = StringToInt(Cut(2, line));
-        myCPU.addressSpace(addressSpace).Poke(address + k, byte);
+        myCPU.addressSpace(addressSpace).FPoke(address + k, byte);
       }
     } else if (line1 == "2") {
       length = StringToInt(Cut(2, line));
       address = StringToInt(Cut(6, line));
       for (int k = 0; k < length - 4; ++k) {
         byte = StringToInt(Cut(2, line));
-        myCPU.addressSpace(addressSpace).Poke(address + k, byte);
+        myCPU.addressSpace(addressSpace).FPoke(address + k, byte);
       }
     } else if (line1 == "3") {
       length = StringToInt(Cut(2, line));
       address = StringToInt(Cut(8, line));
       for (int k = 0; k < length - 5; ++k) {
         byte = StringToInt(Cut(2, line));
-        myCPU.addressSpace(addressSpace).Poke(address + k, byte);
+        myCPU.addressSpace(addressSpace).FPoke(address + k, byte);
       }
     } else if (line1 == "7" || line1 == "8" || line1 == "9") {
       break;

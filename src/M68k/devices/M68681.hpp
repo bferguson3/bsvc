@@ -32,6 +32,7 @@ public:
 
   // Puts a byte into the device
   void Poke(Address addr, Byte c) override;
+  void FPoke(Address addr, Byte c) override;
 
   // Resets the DUART.
   void Reset() override;

@@ -218,6 +218,7 @@ private:
 
   int Peek(Address address, unsigned int &value, int size);
   int Poke(Address address, unsigned int value, int size);
+  int FPoke(Address address, unsigned int value, int size);
 
   unsigned int SignExtend(unsigned int value, int size);
 

@@ -130,7 +130,19 @@ bool AddressSpace::Poke(Address addr, Byte c) {
   d->Poke(addr, c);
   return true;
 }
+// FPoke the given location.  Answers true iff successful
+bool AddressSpace::FPoke(Address addr, Byte c) {
+  BasicDevice *d = FindWriteDevice(addr);
 
+  // Did we find a device
+  if (d == nullptr) {
+    return false;  // Bus error.
+  }
+
+  // Put the byte
+  d->FPoke(addr, c);
+  return true;
+}
 
 namespace {
 bool IsMapped(const BasicDevice &device, Address address, int width) {
@@ -231,6 +243,46 @@ bool AddressSpace::Poke(Address addr, unsigned long data, int size) {
     if (!Poke(addr + 2, (Byte)(data >> 8)))
       return false;
     return Poke(addr + 3, (Byte)(data));
+  }
+
+  return false;
+}
+
+//FORCED
+bool AddressSpace::FPoke(Address addr, unsigned long data, int size) {
+  Byte c = 0;
+  int width = 1;
+  if (size == WORD) width = 2;
+  if (size == LONG) width = 4;
+
+  if (size == BYTE) {
+    if (!FPoke(addr, c)) {
+      return false;
+    }
+    data = c;
+    return true;
+  }
+
+  BasicDevice *d = FindWriteDevice(addr);
+  if (d != nullptr && IsMapped(*d, addr, width)) {
+    return d->FPoke(addr, data, size);
+  }
+
+  if (size == WORD) {
+    if (!FPoke(addr, (Byte)(data >> 8)))
+      return false;
+    return FPoke(addr + 1, (Byte)data);
+  }
+
+  if (size == LONG) {
+    // try per byte
+    if (!FPoke(addr, (Byte)(data >> 24)))
+      return false;
+    if (!FPoke(addr + 1, (Byte)(data >> 16)))
+      return false;
+    if (!FPoke(addr + 2, (Byte)(data >> 8)))
+      return false;
+    return FPoke(addr + 3, (Byte)(data));
   }
 
   return false;

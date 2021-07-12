@@ -57,12 +57,16 @@ public:
 
   // Pokes the given location.  Returns true iff successful.
   virtual bool Poke(Address addr, Byte c);
+  virtual bool FPoke(Address addr, Byte c);
+
 
   // Peeks the given location.  Returns true iff successful.
   virtual bool Peek(Address addr, unsigned long &d, int size);
 
   // Pokes the given location.  Returns true iff successful.
   virtual bool Poke(Address addr, unsigned long d, int size);
+  virtual bool FPoke(Address addr, unsigned long d, int size);
+
 
 private:
   BasicDevice *FindCachedDevice(Address address,

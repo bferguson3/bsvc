@@ -76,3 +76,24 @@ bool BasicDevice::Poke(Address address, unsigned long data, int size) {
   }
   return true;
 }
+// FORCED:
+bool BasicDevice::FPoke(Address address, unsigned long data, int size) {
+  switch (size) {
+  case BYTE:
+    FPoke(address, (Byte)data);
+    break;
+  case WORD:
+    FPoke(address + 1, (Byte)data);
+    FPoke(address, (Byte)(data >> 8));
+    break;
+  case LONG:
+    FPoke(address + 3, (Byte)data);
+    FPoke(address + 2, (Byte)(data >> 8));
+    FPoke(address + 1, (Byte)(data >> 16));
+    FPoke(address + 0, (Byte)(data >> 24));
+    break;
+  default:
+    return false;
+  }
+  return true;
+}

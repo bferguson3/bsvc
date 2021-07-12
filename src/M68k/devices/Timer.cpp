@@ -178,6 +178,33 @@ void Timer::Poke(Address address, Byte c) {
   }
 }
 
+void Timer::FPoke(Address address, Byte c) {
+  switch ((address - baseAddress)) {
+  case TCR:
+    timerValue[TCR] = c;
+    break;
+  case TIVR:
+    timerValue[TIVR] = c;
+    break;
+  case NULR:
+    timerValue[NULR] = c;
+    break;
+  case CPRH:
+    timerValue[CPRH] = c;
+    break;
+  case CPRM:
+    timerValue[CPRM] = c;
+    break;
+  case CPRL:
+    timerValue[CPRL] = c;
+    break;
+  case TSR:
+    timerValue[TSR] = c;
+    break;
+  }
+}
+
+
 // Resets the timer and Initalizes the registers.
 void Timer::Reset() {
   // Resets the interupt handler.

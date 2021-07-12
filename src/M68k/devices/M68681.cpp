@@ -500,7 +500,158 @@ void M68681::Poke(Address addr, Byte c) {
     IVR = c;
   }
 }
+void M68681::FPoke(Address addr, Byte c) {
+  addr -= (base_address + offset_to_first_register);
+  if (addr == 0) {  // Mode Register A
+    if (mr1a_pointer) {
+      mr1a_pointer = 0;
+      MR1A = c;
+      SetInterruptStatusRegister();
+    } else {
+      MR2A = c;
+    }
+  } else if (addr == offset_between_registers) {  // Clock-select Register A
+    CSRA = c;
+  } else if (addr == 2 * offset_between_registers) { // Command Register A
+    CRA = c;
+    switch ((CRA & 0x70) >> 4) {
+    case 1: // Reset mode register pointer
+      mr1a_pointer = 1;
+      break;
+    case 2: // Reset receiver
+      receiver_a_state = INACTIVE;
+      SRA &= ~RxRDY;
+      SRA &= ~FFULL;
+      SetInterruptStatusRegister();
+      break;
+    case 3: // Reset transmitter
+      transmitter_a_state = INACTIVE;
+      SRA &= ~TxRDY;
+      SRA &= ~TxEMT;
+      SetInterruptStatusRegister();
+      break;
+    case 4: // Clear error status
+      SRA &= 0x0f;
+      break;
+    }
+    switch ((CRA & 0x0c) >> 2) {
+    case 1: // Enable transmitter
+      transmitter_a_state = ACTIVE;
+      SRA |= TxRDY;
+      SRA |= TxEMT;
+      SetInterruptStatusRegister();
+      break;
+    case 2: // Disable transmitter
+      transmitter_a_state = INACTIVE;
+      SRA &= ~TxRDY;
+      SRA &= ~TxEMT;
+      SetInterruptStatusRegister();
+      break;
+    }
+    switch (c & 0x3) {
+    case 1: // Enable receiver
+      receiver_a_state = ACTIVE;
+      SRA &= ~RxRDY;
+      SRA &= ~FFULL;
+      SetInterruptStatusRegister();
+      break;
+    case 2:
+      receiver_a_state = INACTIVE;
+      break;
+    }
+  } else if (addr == 3 * offset_between_registers) {  // Transmitter Buffer A
+    TBA = c;       // Store the transmit data
+    SRA &= ~TxRDY; // Mark register as full
+    SRA &= ~TxEMT;
+    SetInterruptStatusRegister();
 
+    if (ACR & 128)
+      myCPU.eventHandler()
+          .Add(this, WRITE_A_CALLBACK, 0, baudrate_table[(CSRA & 0xf) + 16]);
+    else
+      myCPU.eventHandler()
+          .Add(this, WRITE_A_CALLBACK, 0, baudrate_table[(CSRA & 0xf)]);
+  } else if (addr == 5 * offset_between_registers) {  // Interrupt Mask Register
+    IMR = c;
+  } else if (addr == 6 * offset_between_registers) {  // Counter/Timer Upper Reg
+    CTUR = c;
+  } else if (addr == 7 * offset_between_registers) {  // Counter/Timer Lower Reg
+    CTLR = c;
+  } else if (addr == 8 * offset_between_registers) {  // Mode Register B
+    if (mr1b_pointer) {
+      mr1b_pointer = 0;
+      MR1B = c;
+      SetInterruptStatusRegister();
+    } else {
+      MR2B = c;
+    }
+  } else if (addr == 9 * offset_between_registers) {  // Clock-select Register B
+    CSRB = c;
+  } else if (addr == 10 * offset_between_registers) { // Command Register B
+    CRB = c;
+    switch ((CRB & 0x70) >> 4) {
+    case 1: // Reset mode register pointer
+      mr1b_pointer = 1;
+      break;
+    case 2: // Reset receiver
+      receiver_b_state = INACTIVE;
+      SRB &= ~RxRDY;
+      SRB &= ~FFULL;
+      SetInterruptStatusRegister();
+      break;
+    case 3: // Reset transmitter
+      transmitter_b_state = INACTIVE;
+      SRB &= ~TxRDY;
+      SRB &= ~TxEMT;
+      SetInterruptStatusRegister();
+      break;
+    case 4: // Clear error status
+      SRB &= 0x0f;
+      break;
+    }
+    switch ((CRB & 0x0c) >> 2) {
+    case 1: // Enable transmitter
+      transmitter_b_state = ACTIVE;
+      SRB |= TxRDY;
+      SRB |= TxEMT;
+      SetInterruptStatusRegister();
+      break;
+    case 2: // Disable transmitter
+      transmitter_b_state = INACTIVE;
+      SRB &= ~TxRDY;
+      SRB &= ~TxEMT;
+      SetInterruptStatusRegister();
+      break;
+    }
+    switch (c & 0x3) {
+    case 1: // Enable receiver
+      receiver_b_state = ACTIVE;
+      SRB &= ~RxRDY;
+      SRB &= ~FFULL;
+      SetInterruptStatusRegister();
+      break;
+    case 2:
+      receiver_b_state = INACTIVE;
+      break;
+    }
+  } else if (addr == 11 * offset_between_registers) // Transmitter Buffer B
+  {
+    TBB = c;       // Store the transmit data
+    SRB &= ~TxRDY; // Mark register as full
+    SRB &= ~TxEMT;
+    SetInterruptStatusRegister();
+
+    if (ACR & 128)
+      (myCPU.eventHandler())
+          .Add(this, WRITE_B_CALLBACK, 0, baudrate_table[(CSRB & 0xf) + 16]);
+    else
+      (myCPU.eventHandler())
+          .Add(this, WRITE_B_CALLBACK, 0, baudrate_table[(CSRB & 0xf)]);
+  } else if (addr == 12 * offset_between_registers) // Interrupt-vector register
+  {
+    IVR = c;
+  }
+}
 // Handle event callbacks
 void M68681::EventCallback(int type, void *) {
   SetInterruptStatusRegister();
